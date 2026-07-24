@@ -1,0 +1,1 @@
+export { mockRiskFactors } from './ministryData';

@@ -1,0 +1,1 @@
+export { mockAlerts } from './ministryData';

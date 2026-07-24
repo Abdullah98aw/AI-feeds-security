@@ -1,0 +1,1 @@
+export { mockAccounts } from './ministryData';
