@@ -562,3 +562,32 @@ Arabic support: root RTL direction, Arabic-capable font stack, Arabic notificati
 | Authentication | Not Implemented | None | None | Single central Ministry user only |
 | Backend/API | Not Implemented | None | None | Frontend prototype only |
 | Database | Not Implemented | None | Browser localStorage only | No production storage |
+# Reliability and Simulation Update - July 27, 2026
+
+The prototype now includes a reliability hardening layer and a more representative controlled live simulation. The application remains frontend-only and simulated, but it is designed to recover from invalid routes, missing records, malformed URL parameters, and corrupted localStorage data without leaving the user on a blank white screen.
+
+## Updated Functional Status
+
+| Area | Current Status | Functional Meaning |
+| --- | --- | --- |
+| Error recovery | Implemented | Route and render failures show a recovery screen with Dashboard, Findings, Previous Page, and Retry actions. |
+| Invalid records | Implemented | Missing finding, case, and account IDs show record-not-found states instead of rendering undefined data. |
+| localStorage resilience | Implemented | Saved data is parsed and shape-checked; corrupted or unusable data falls back to mock defaults. |
+| Notification outcomes | Implemented | Live simulation can now generate assigned, unassigned, verification, multi-sector, critical, vulnerability, dark web, social OSINT, case/status, closed, and reopened outcomes. |
+| Notification safety | Implemented | Notification Center validates linked finding/case targets before rendering action links. |
+| Navigation recovery | Implemented | Recovery screens provide dashboard/list routes and safe previous-page behavior. |
+| Developer documentation | Implemented | Code-level architecture, routes, state, models, storage, simulation, and troubleshooting are documented in `DEVELOPER_SYSTEM_DOCUMENTATION.md`. |
+
+## Updated User Journey
+
+1. The Ministry analyst opens the Dashboard and reviews KPIs, sector cards, and priority findings.
+2. The analyst may start the controlled live simulation from Settings.
+3. The simulation creates varied local events, including automatically assigned findings, unassigned findings needing triage, multi-sector findings, verification-required findings, critical escalations, and status/case updates.
+4. Toasts and Notification Center cards clearly label simulated intelligence and explain assignment outcome, confidence, sector, and next action.
+5. If a generated finding is unassigned, it appears in Unassigned Findings and can be manually routed.
+6. Manual routing creates assignment audit history and a confirmation notification.
+7. Invalid URLs, deleted records, or corrupted saved data lead to recovery screens or safe defaults instead of a blank page.
+
+## Current Executive Summary
+
+The platform is now a stable frontend prototype suitable for demonstration and developer handoff. It demonstrates the business workflow of central Ministry threat triage, sector assignment, investigation, notes, notifications, case management, audit history, and controlled live simulation. It does not yet provide production-grade authentication, backend persistence, feed ingestion, real AI analysis, or real evidence storage.

@@ -6,8 +6,10 @@ import { ConfidenceBreakdown } from '../components/ConfidenceBreakdown';
 import { RiskScoreAnimation } from '../components/RiskScoreAnimation';
 import { SeverityBadge } from '../components/SeverityBadge';
 import { StatusBadge } from '../components/StatusBadge';
+import { ErrorFallback } from '../components/ErrorFallback';
 import { mockAssets, mockRiskFactors, sectors } from '../data/ministryData';
 import { storage } from '../services/storage';
+import { safeRecordLookup } from '../services/safeActions';
 import { usePrototype } from '../state/AlertStatusContext';
 import type { AlertStatus, AnalystNote, InvestigationCase, Priority, SectorId } from '../types';
 
@@ -21,7 +23,7 @@ type FeedbackTone = NonNullable<Feedback>['tone'];
 export default function Investigation() {
   const { alertId } = useParams();
   const { findings, cases, notes, addNote, updateNote, deleteNote, setStatus, assignFinding, saveCase, updateFinding } = usePrototype();
-  const finding = findings.find((item) => item.id === alertId);
+  const finding = safeRecordLookup(findings, alertId);
   const notesSectionRef = useRef<HTMLElement | null>(null);
   const [noteText, setNoteText] = useState('');
   const [visibility, setVisibility] = useState<'Ministry Internal' | 'Shared With Assigned Sectors'>('Ministry Internal');
@@ -35,7 +37,7 @@ export default function Investigation() {
   const [targetCaseId, setTargetCaseId] = useState('');
 
   if (!finding) {
-    return <NotFound title="Finding Not Found" detail="The requested simulated finding does not exist. Return to the queue and select an available finding." />;
+    return <NotFound title="Record not found" detail="The requested simulated finding does not exist or is no longer available in localStorage." />;
   }
 
   const risk = mockRiskFactors.find((item) => item.alertId === finding.id);
@@ -543,11 +545,6 @@ function EmptyState({ title, detail }: { title: string; detail: string }) {
 
 function NotFound({ title, detail }: { title: string; detail: string }) {
   return (
-    <div className="rounded-lg border border-line bg-panel p-8 text-center">
-      <AlertTriangle className="mx-auto text-danger" />
-      <h1 className="mt-4 text-2xl font-semibold">{title}</h1>
-      <p className="mt-2 text-slate-400">{detail}</p>
-      <Link to="/alerts" className="mt-5 inline-flex min-h-11 items-center justify-center rounded-lg bg-signal px-4 py-2 text-sm font-semibold text-graphite">Back to Findings</Link>
-    </div>
+    <ErrorFallback title={title} message={detail} detail="Open the findings queue to choose an available record, or return to the dashboard." listRoute="/alerts" listLabel="Findings Queue" />
   );
 }

@@ -211,11 +211,17 @@ export interface NotificationRecord {
   id: string;
   title?: string;
   messageAr: string;
+  messageEn?: string;
   severity: Severity;
   sector: SectorId;
   time: string;
   source?: NonNullable<Post['sourceType']>;
   simulated?: boolean;
+  outcome?: 'assigned' | 'unassigned' | 'verification' | 'multi-sector' | 'critical' | 'vulnerability' | 'dark-web' | 'social-osint' | 'case-update' | 'analyst-assignment' | 'closed' | 'reopened' | 'completed';
+  assignmentReason?: string;
+  suggestedAction?: string;
+  confidence?: number;
+  suggestedSectors?: SectorId[];
   findingId?: string;
   caseId?: string;
   read: boolean;

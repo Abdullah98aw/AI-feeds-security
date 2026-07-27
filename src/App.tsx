@@ -2,14 +2,17 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { LiveSimulationToasts } from './components/LiveSimulationToasts';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { AlertStatusProvider, usePrototype } from './state/AlertStatusContext';
 import { labels } from './services/i18n';
 
 export default function App() {
   return (
-    <AlertStatusProvider>
-      <AppShell />
-    </AlertStatusProvider>
+    <AppErrorBoundary>
+      <AlertStatusProvider>
+        <AppShell />
+      </AlertStatusProvider>
+    </AppErrorBoundary>
   );
 }
 

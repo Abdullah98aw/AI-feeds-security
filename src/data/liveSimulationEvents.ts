@@ -1,6 +1,8 @@
 import { sectors } from './ministryData';
 import type { Alert, NotificationRecord, Post, SectorId, Severity } from '../types';
 
+type Outcome = NonNullable<NotificationRecord['outcome']>;
+
 type Template = {
   key: string;
   title: string;
@@ -50,11 +52,14 @@ export function generateLiveSimulationEvent(options: { existingCount: number; re
   const pool = eligible.length > 0 ? eligible : templates;
   const template = pool[Math.floor(Math.random() * pool.length)];
   const sequence = options.existingCount + 1;
+  const outcome = chooseOutcome(template, sequence);
   const id = `sim-finding-${now.getTime()}-${sequence}`;
   const timestamp = now.toLocaleString();
   const due = new Date(now.getTime() + (template.severity === 'Critical' ? 6 : template.severity === 'High' ? 12 : 24) * 60 * 60 * 1000);
   const priority = template.severity === 'Critical' ? 'P1' : template.severity === 'High' ? 'P2' : template.severity === 'Medium' ? 'P3' : 'P4';
-  const status = template.severity === 'Low' ? 'New' : 'Verification Required';
+  const routing = resolveRouting(template, outcome);
+  const status = resolveStatus(outcome, template.severity);
+  const confidence = Math.max(42, Math.min(96, template.confidence + Math.floor(Math.random() * 8) - 3));
   const finding: Alert = {
     id,
     postId: `sim-post-${now.getTime()}-${sequence}`,
@@ -62,18 +67,18 @@ export function generateLiveSimulationEvent(options: { existingCount: number; re
     updatedAt: timestamp,
     category: template.category,
     severity: template.severity,
-    confidence: template.confidence + Math.floor(Math.random() * 8) - 3,
+    confidence,
     status,
-    sectorId: template.supportingSectors.length ? 'multi-sector' : template.primarySector,
-    sectorName: sectorName(template.primarySector),
-    primarySector: template.primarySector,
-    supportingSectors: template.supportingSectors,
-    sectorReasons: Object.fromEntries([template.primarySector, ...template.supportingSectors].map((sector) => [sector, sector === template.primarySector ? `Primary routing selected because ${template.category} indicators match ${sectorShort(sector)}.` : `Supporting sector added due to related simulated context for ${sectorShort(sector)}.`])),
+    sectorId: routing.supportingSectors.length ? 'multi-sector' : routing.primarySector,
+    sectorName: sectorName(routing.primarySector),
+    primarySector: routing.primarySector,
+    supportingSectors: routing.supportingSectors,
+    sectorReasons: Object.fromEntries([routing.primarySector, ...routing.supportingSectors].map((sector) => [sector, sector === routing.primarySector ? routing.reason : `Supporting sector added due to related simulated context for ${sectorShort(sector)}.`])),
     source: template.source,
     collectionTime: timestamp,
     dueDate: due.toISOString().slice(0, 10),
     lastUpdate: timestamp,
-    processingStage: status,
+    processingStage: status === 'Assigned' ? 'Assigned' : status === 'Investigating' ? 'Investigating' : status === 'Closed' ? 'Closed' : 'Verification Required',
     threatSource: `${template.source} simulated live source`,
     authenticity: 'Verification Required',
     reliability: template.source === 'Vulnerability Intelligence' ? 'Reliable' : template.source === 'Social Media' ? 'Questionable' : 'Unknown',
@@ -86,39 +91,118 @@ export function generateLiveSimulationEvent(options: { existingCount: number; re
     evidenceAvailability: template.preview ? 'Limited' : 'Not Available',
     detectedEntities: template.entities,
     maskedPreview: template.preview,
-    sectorMatching: `Simulated Live Intelligence Event routed to ${sectorName(template.primarySector)} using local template rules for ${template.category}.`,
-    aiExplanation: `Simulated Live Intelligence Event: the frontend prototype classified this event as ${template.category} from ${template.source}. This is local mock logic, not real AI analysis or live intelligence.`,
+    sectorMatching: routing.reason,
+    aiExplanation: `Simulated Live Intelligence Event: the frontend prototype classified this event as ${template.category} from ${template.source}. Outcome: ${outcomeLabel(outcome)}. This is local mock logic, not real AI analysis or live intelligence.`,
     riskExplanation: `Risk is simulated from severity, sector relevance, confidence, source type, and whether masked evidence exists. No real Ministry intelligence is used.`,
     originalFinding: `Simulated Live Intelligence Event - ${template.title}. Source: ${template.source}. This is frontend-only demo data.`,
-    assignedAnalyst: `${sectorShort(template.primarySector)} Analyst`,
-    escalationLevel: template.severity === 'Critical' ? 'Immediate Review' : template.severity === 'High' ? 'Elevated' : template.severity === 'Medium' ? 'Watch' : 'None',
+    assignedAnalyst: routing.primarySector === 'admin' ? 'Ministry Analyst' : `${sectorShort(routing.primarySector)} Analyst`,
+    escalationLevel: outcome === 'critical' || template.severity === 'Critical' ? 'Immediate Review' : template.severity === 'High' ? 'Elevated' : template.severity === 'Medium' ? 'Watch' : 'None',
     priority,
     falsePositiveRisk: template.confidence >= 80 ? 'Medium' : 'High',
     analystNotes: 'Generated by the controlled live simulation.',
     relatedAlertIds: [],
     similarPreviousCases: ['Controlled live simulation example'],
-    whyFlagged: `Local simulated template matched ${template.category} to ${sectorShort(template.primarySector)}.`,
+    whyFlagged: `Local simulated template produced a ${outcomeLabel(outcome).toLowerCase()} outcome for ${template.category}.`,
     evidence: ['Simulated Live Intelligence Event', `${template.source} template selected`, 'No real dark web access', template.preview ? 'Sensitive preview remains masked' : 'No sensitive preview available'],
     contextIndicators: ['Sector relevance', 'Source type', 'Severity mix', 'Confidence score'],
     notDetected: ['No confirmed incident', 'No real personal data', 'No external collection'],
-    confidenceReasoning: `${template.confidence}% simulated confidence based on local event-template metadata and routing rules.`,
+    confidenceReasoning: `${confidence}% simulated confidence based on local event-template metadata, outcome distribution, and routing rules.`,
     detectionTimeline: ['Collected', 'Normalizing', 'Entity Extraction', 'Sector Classification', 'Risk Assessment', 'Verification Required'],
     recommendedAction: template.recommendedAction,
-    suggestedNextAction: 'Open the generated finding, review the risk panel, and record analyst notes.'
+    suggestedNextAction: suggestedAction(outcome)
   };
   const notification: NotificationRecord = {
     id: `sim-notification-${now.getTime()}-${sequence}`,
     title: template.title,
-    messageAr: template.messageAr,
+    messageAr: messageAr(template, outcome, routing),
+    messageEn: messageEn(template, outcome, routing),
     severity: template.severity,
-    sector: template.primarySector,
+    sector: routing.primarySector,
     source: template.source,
     simulated: true,
+    outcome,
+    assignmentReason: routing.reason,
+    suggestedAction: suggestedAction(outcome),
+    confidence,
+    suggestedSectors: routing.suggestedSectors,
     time: timestamp,
     findingId: id,
     read: false
   };
   return { finding, notification, signature: signature(template) };
+}
+
+function chooseOutcome(template: Template, sequence: number): Outcome {
+  const cycle: Outcome[] = ['assigned', 'unassigned', 'verification', 'multi-sector', 'critical', 'vulnerability', 'dark-web', 'social-osint', 'case-update', 'analyst-assignment', 'closed', 'reopened'];
+  const cycled = cycle[(sequence - 1) % cycle.length];
+  if (cycled === 'multi-sector' && template.supportingSectors.length === 0) return 'assigned';
+  if (cycled === 'critical' && template.severity !== 'Critical') return 'verification';
+  if (cycled === 'vulnerability' && template.source !== 'Vulnerability Intelligence') return 'assigned';
+  if (cycled === 'dark-web' && template.source !== 'Dark Web') return 'assigned';
+  if (cycled === 'social-osint' && template.source !== 'Social Media') return 'assigned';
+  return cycled;
+}
+
+function resolveRouting(template: Template, outcome: Outcome): { primarySector: SectorId; supportingSectors: SectorId[]; reason: string; suggestedSectors?: SectorId[] } {
+  if (outcome === 'unassigned') {
+    return {
+      primarySector: 'admin' as SectorId,
+      supportingSectors: [],
+      reason: 'The finding remains unassigned because confidence or extracted context is insufficient for sector routing.',
+      suggestedSectors: [template.primarySector, ...template.supportingSectors].filter((sector, index, list) => list.indexOf(sector) === index)
+    };
+  }
+  const supporting = outcome === 'multi-sector' ? ensureSupporting(template) : template.supportingSectors.filter((sector) => sector !== template.primarySector);
+  return {
+    primarySector: template.primarySector as SectorId,
+    supportingSectors: supporting,
+    reason: `The finding was assigned to ${sectorName(template.primarySector)} based on detected ${template.category} context.`,
+    suggestedSectors: undefined
+  };
+}
+
+function ensureSupporting(template: Template): SectorId[] {
+  const fallback: SectorId = template.primarySector === 'border-guard' ? 'narcotics' : template.primarySector === 'narcotics' ? 'border-guard' : template.primarySector === 'passports' ? 'public-security' : 'public-security';
+  return Array.from(new Set([...(template.supportingSectors.length ? template.supportingSectors : [fallback])])).filter((sector) => sector !== template.primarySector);
+}
+
+function resolveStatus(outcome: Outcome, severity: Severity) {
+  if (outcome === 'assigned' || outcome === 'multi-sector' || outcome === 'analyst-assignment') return 'Assigned';
+  if (outcome === 'closed') return 'Closed';
+  if (outcome === 'reopened' || outcome === 'case-update') return 'Investigating';
+  if (outcome === 'unassigned') return severity === 'Low' ? 'New' : 'Verification Required';
+  return 'Verification Required';
+}
+
+function outcomeLabel(outcome: Outcome) {
+  return outcome.replace('-', ' ');
+}
+
+function suggestedAction(outcome: Outcome) {
+  if (outcome === 'unassigned') return 'Open triage and assign a sector manually.';
+  if (outcome === 'critical') return 'Open finding for immediate review.';
+  if (outcome === 'closed') return 'Review closure rationale.';
+  if (outcome === 'reopened') return 'Continue investigation and record notes.';
+  if (outcome === 'case-update') return 'Review case linkage and timeline.';
+  return 'Open the generated finding and review the workflow panel.';
+}
+
+function messageAr(template: Template, outcome: Outcome, routing: ReturnType<typeof resolveRouting>) {
+  if (outcome === 'unassigned') return 'تم رصد بلاغ تجريبي جديد، ولكن لم يتم تحديد القطاع المسؤول حتى الآن بسبب نقص السياق أو انخفاض الثقة.';
+  if (outcome === 'multi-sector') return `تم إسناد البلاغ التجريبي إلى ${sectorName(routing.primarySector)} مع إضافة قطاع مساند للمراجعة المشتركة.`;
+  if (outcome === 'critical') return `تصعيد تجريبي حرج: ${template.title} يتطلب مراجعة فورية.`;
+  if (outcome === 'closed') return `تم إغلاق بلاغ تجريبي بعد اكتمال المراجعة المحلية.`;
+  if (outcome === 'reopened') return `تمت إعادة فتح بلاغ تجريبي لمتابعة التحقيق.`;
+  return `تم إسناد البلاغ التجريبي إلى ${sectorName(routing.primarySector)} بناء على السياق المكتشف.`;
+}
+
+function messageEn(template: Template, outcome: Outcome, routing: ReturnType<typeof resolveRouting>) {
+  if (outcome === 'unassigned') return 'A new simulated finding was detected, but no responsible sector has been selected because the context requires human review.';
+  if (outcome === 'multi-sector') return `The simulated finding was assigned to ${sectorName(routing.primarySector)} with supporting sector review.`;
+  if (outcome === 'critical') return `Critical simulated escalation: ${template.title} requires immediate review.`;
+  if (outcome === 'closed') return 'A simulated finding was closed after local review.';
+  if (outcome === 'reopened') return 'A simulated finding was reopened for continued investigation.';
+  return `The finding was assigned to ${sectorName(routing.primarySector)} based on the detected context.`;
 }
 
 function signature(template: Template) {

@@ -3,12 +3,17 @@ import { Activity, ArrowLeft, Clock, Eye, Radio, ShieldAlert } from 'lucide-reac
 import { mockAccounts } from '../data/mockAccounts';
 import { mockAlerts } from '../data/mockAlerts';
 import { mockPosts } from '../data/mockPosts';
+import { ErrorFallback } from '../components/ErrorFallback';
 import { KpiCard } from '../components/KpiCard';
 import { SeverityBadge } from '../components/SeverityBadge';
 
 export default function AccountIntelligence() {
   const { accountId } = useParams();
   const account = accountId ? mockAccounts.find((item) => item.id === accountId) : undefined;
+
+  if (accountId && !account) {
+    return <ErrorFallback title="Record not found" message="The requested account profile does not exist in the mock dataset." detail="Open the account list or return to the dashboard." listRoute="/accounts" listLabel="Accounts" />;
+  }
 
   if (!account) {
     return <AccountList />;

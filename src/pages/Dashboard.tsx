@@ -8,6 +8,7 @@ import { PostCard } from '../components/PostCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { sectors } from '../data/ministryData';
 import { labels } from '../services/i18n';
+import { validSectorParam } from '../services/safeActions';
 import { usePrototype } from '../state/AlertStatusContext';
 import type { Alert, AlertStatus, SectorId } from '../types';
 
@@ -23,7 +24,7 @@ const kpis: Array<{ label: string; status?: AlertStatus; icon: LucideIcon; filte
 export default function Dashboard() {
   const { findings, language } = usePrototype();
   const [params, setParams] = useSearchParams();
-  const sectorFilter = (params.get('sector') ?? 'all') as SectorId | 'all';
+  const sectorFilter = validSectorParam(params.get('sector'), sectors.map((sector) => sector.id)) as SectorId | 'all';
   const listFilter = params.get('filter') ?? 'active';
   const t = labels[language];
   const visible = sectorFilter === 'all' ? findings : findings.filter((finding) => finding.primarySector === sectorFilter || finding.supportingSectors.includes(sectorFilter));

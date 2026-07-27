@@ -278,6 +278,29 @@ export function AlertStatusProvider({ children }: { children: ReactNode }) {
       } : finding);
       persistFindings(next);
       storage.event('Finding assigned', `Finding reassigned from ${previous?.primarySector ?? 'Unassigned'} to ${primarySector}.`, { findingId, sector: primarySector, previousValue: previous?.primarySector, newValue: primarySector });
+      if (previous?.primarySector === 'admin' && primarySector !== 'admin') {
+        const sectorName = next.find((finding) => finding.id === findingId)?.sectorName ?? primarySector;
+        const notification: NotificationRecord = {
+          id: `assignment-notification-${Date.now()}`,
+          title: 'Finding assigned after triage',
+          messageAr: `تم إسناد البلاغ إلى ${sectorName} بناء على مراجعة المحلل.`,
+          messageEn: `The finding was assigned to ${sectorName} after analyst triage.`,
+          severity: previous.severity,
+          sector: primarySector,
+          source: previous.source,
+          simulated: previous.id.startsWith('sim-'),
+          outcome: supportingSectors.length ? 'multi-sector' : 'assigned',
+          assignmentReason: `Manual triage assigned the finding from Ministry review to ${sectorName}.`,
+          suggestedAction: 'Open the finding and continue investigation.',
+          confidence: previous.confidence,
+          findingId,
+          time: new Date().toLocaleString(),
+          read: false
+        };
+        const nextNotifications = [notification, ...notifications].slice(0, 240);
+        setNotifications(nextNotifications);
+        storage.saveNotifications(nextNotifications);
+      }
     },
     setStatus: (findingId, status) => {
       const previous = findings.find((finding) => finding.id === findingId);

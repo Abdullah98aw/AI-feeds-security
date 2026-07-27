@@ -18,29 +18,31 @@ import ThreatSources from './pages/ThreatSources';
 import UnassignedFindings from './pages/UnassignedFindings';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+import { RouteErrorElement } from './components/RouteErrorElement';
 import './styles.css';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <RouteErrorElement />,
     children: [
-      { index: true, element: <Dashboard /> },
-      { path: 'investigation/:alertId', element: <Investigation /> },
-      { path: 'accounts/:accountId?', element: <AccountIntelligence /> },
-      { path: 'alerts', element: <AlertManagement /> },
-      { path: 'vulnerabilities', element: <VulnerabilityIntelligence /> },
-      { path: 'dark-web', element: <DarkWebIntelligence /> },
-      { path: 'social-osint', element: <SocialOsint /> },
-      { path: 'cases', element: <Cases /> },
-      { path: 'cases/:caseId', element: <CaseDetail /> },
-      { path: 'unassigned', element: <UnassignedFindings /> },
-      { path: 'sources', element: <ThreatSources /> },
-      { path: 'notifications', element: <NotificationCenter /> },
-      { path: 'audit', element: <AuditLog /> },
-      { path: 'analytics', element: <Analytics /> },
-      { path: 'settings', element: <Settings /> },
-      { path: '*', element: <NotFound /> }
+      { index: true, element: <Dashboard />, errorElement: <RouteErrorElement /> },
+      { path: 'investigation/:alertId', element: <Investigation />, errorElement: <RouteErrorElement /> },
+      { path: 'accounts/:accountId?', element: <AccountIntelligence />, errorElement: <RouteErrorElement /> },
+      { path: 'alerts', element: <AlertManagement />, errorElement: <RouteErrorElement /> },
+      { path: 'vulnerabilities', element: <VulnerabilityIntelligence />, errorElement: <RouteErrorElement /> },
+      { path: 'dark-web', element: <DarkWebIntelligence />, errorElement: <RouteErrorElement /> },
+      { path: 'social-osint', element: <SocialOsint />, errorElement: <RouteErrorElement /> },
+      { path: 'cases', element: <Cases />, errorElement: <RouteErrorElement /> },
+      { path: 'cases/:caseId', element: <CaseDetail />, errorElement: <RouteErrorElement /> },
+      { path: 'unassigned', element: <UnassignedFindings />, errorElement: <RouteErrorElement /> },
+      { path: 'sources', element: <ThreatSources />, errorElement: <RouteErrorElement /> },
+      { path: 'notifications', element: <NotificationCenter />, errorElement: <RouteErrorElement /> },
+      { path: 'audit', element: <AuditLog />, errorElement: <RouteErrorElement /> },
+      { path: 'analytics', element: <Analytics />, errorElement: <RouteErrorElement /> },
+      { path: 'settings', element: <Settings />, errorElement: <RouteErrorElement /> },
+      { path: '*', element: <NotFound />, errorElement: <RouteErrorElement /> }
     ]
   }
 ]);

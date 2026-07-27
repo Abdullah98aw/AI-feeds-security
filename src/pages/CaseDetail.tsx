@@ -1,14 +1,16 @@
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
+import { ErrorFallback } from '../components/ErrorFallback';
+import { safeRecordLookup } from '../services/safeActions';
 import { usePrototype } from '../state/AlertStatusContext';
 
 export default function CaseDetail() {
   const { caseId } = useParams();
   const { cases, findings, notes, addNote, updateNote, deleteNote, closeCase, reopenCase } = usePrototype();
-  const item = cases.find((candidate) => candidate.id === caseId);
+  const item = safeRecordLookup(cases, caseId);
   const [text, setText] = useState('');
   if (!item) {
-    return <div className="rounded-lg border border-line bg-panel p-8 text-center"><h1 className="text-2xl font-semibold">Case Not Found</h1><p className="mt-2 text-slate-400">The requested case does not exist.</p><Link to="/cases" className="mt-4 inline-block rounded-lg bg-signal px-4 py-2 text-sm font-semibold text-graphite">Back to Cases</Link></div>;
+    return <ErrorFallback title="Record not found" message="The requested case does not exist or is no longer available in localStorage." detail="Open the cases list to choose an available case, or return to the dashboard." listRoute="/cases" listLabel="Cases" />;
   }
   const related = findings.filter((finding) => item.findingIds.includes(finding.id));
   const caseNotes = notes.filter((note) => note.targetId === item.id);
