@@ -1,7 +1,21 @@
 import { defaultNotes, defaultSettings, mockAlerts, mockAuditEvents, mockCases, mockNotifications } from '../data/ministryData';
-import type { Alert, AnalystNote, AuditEvent, InvestigationCase, NotificationRecord, PrototypeSettings } from '../types';
+import type { Alert, AnalystNote, AuditEvent, InvestigationCase, NotificationRecord, PrototypeSettings, SimulationState } from '../types';
 
 const prefix = 'moi-threat-intel-v2';
+
+export const defaultSimulationState: SimulationState = {
+  status: 'Ready',
+  startedAt: null,
+  completedAt: null,
+  durationMs: 30 * 60 * 1000,
+  intervalMs: 10 * 1000,
+  generatedCount: 0,
+  nextEventAt: null,
+  pausedRemainingMs: null,
+  pausedNextEventMs: null,
+  recentSignatures: [],
+  muted: false
+};
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -38,7 +52,10 @@ export const storage = {
   saveNotifications: (notifications: NotificationRecord[]) => write('notifications', notifications),
   settings: () => read<PrototypeSettings>('settings', defaultSettings),
   saveSettings: (settings: PrototypeSettings) => write('settings', settings),
-  reset: () => ['findings', 'cases', 'notes', 'audit', 'notifications', 'settings', 'presentation'].forEach((key) => window.localStorage.removeItem(`${prefix}:${key}`)),
+  simulation: () => read<SimulationState>('simulation', defaultSimulationState),
+  saveSimulation: (state: SimulationState) => write('simulation', state),
+  resetSimulation: () => window.localStorage.removeItem(`${prefix}:simulation`),
+  reset: () => ['findings', 'cases', 'notes', 'audit', 'notifications', 'settings', 'presentation', 'simulation'].forEach((key) => window.localStorage.removeItem(`${prefix}:${key}`)),
   event(action: string, description: string, values: Partial<AuditEvent> = {}) {
     const now = new Date();
     const event: AuditEvent = {

@@ -370,7 +370,17 @@ export const defaultSettings: PrototypeSettings = {
   defaultDateRange: 'This week',
   defaultSector: 'all',
   riskThreshold: 'High',
-  liveSimulation: true
+  liveSimulation: false,
+  liveSimulationSettings: {
+    eventIntervalSeconds: 10,
+    durationMinutes: 30,
+    toastEnabled: true,
+    soundEnabled: false,
+    severityMix: 'Balanced',
+    sectorMix: 'Balanced',
+    autoCreateFindings: true,
+    autoCreateAuditEvents: true
+  }
 };
 
 export const defaultNotes: AnalystNote[] = [

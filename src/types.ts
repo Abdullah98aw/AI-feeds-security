@@ -209,13 +209,54 @@ export interface AuditEvent {
 
 export interface NotificationRecord {
   id: string;
+  title?: string;
   messageAr: string;
   severity: Severity;
   sector: SectorId;
   time: string;
+  source?: NonNullable<Post['sourceType']>;
+  simulated?: boolean;
   findingId?: string;
   caseId?: string;
   read: boolean;
+}
+
+export type SimulationStatus = 'Ready' | 'Running' | 'Paused' | 'Completed' | 'Stopped';
+
+export interface SimulationSettings {
+  eventIntervalSeconds: number;
+  durationMinutes: number;
+  toastEnabled: boolean;
+  soundEnabled: boolean;
+  severityMix: 'Balanced' | 'High Priority' | 'Lower Noise';
+  sectorMix: 'Balanced' | 'Operational Sectors' | 'Technical Exposure';
+  autoCreateFindings: boolean;
+  autoCreateAuditEvents: boolean;
+}
+
+export interface SimulationState {
+  status: SimulationStatus;
+  startedAt: number | null;
+  completedAt: number | null;
+  durationMs: number;
+  intervalMs: number;
+  generatedCount: number;
+  nextEventAt: number | null;
+  pausedRemainingMs: number | null;
+  pausedNextEventMs: number | null;
+  recentSignatures: string[];
+  muted: boolean;
+}
+
+export interface LiveSimulationToast {
+  id: string;
+  title: string;
+  severity: Severity;
+  sector: SectorId;
+  sectorName: string;
+  source: NonNullable<Post['sourceType']>;
+  time: string;
+  findingId?: string;
 }
 
 export interface PrototypeSettings {
@@ -226,4 +267,5 @@ export interface PrototypeSettings {
   defaultSector: SectorId | 'all';
   riskThreshold: Severity;
   liveSimulation: boolean;
+  liveSimulationSettings: SimulationSettings;
 }

@@ -7,8 +7,19 @@ import type { InvestigationCase, Priority, SectorId } from '../types';
 export default function Cases() {
   const { cases, findings, saveCase, closeCase, reopenCase } = usePrototype();
   const [draft, setDraft] = useState({ title: '', primarySector: 'prisons' as SectorId, analyst: 'Ministry Analyst', priority: 'P2' as Priority, notes: '' });
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const createCase = () => {
-    if (!draft.title.trim()) return;
+    if (!draft.title.trim()) {
+      setError('Case title is required.');
+      setMessage('');
+      return;
+    }
+    if (findings.length === 0) {
+      setError('A case must contain at least one finding.');
+      setMessage('');
+      return;
+    }
     const selected = findings.slice(0, 2).map((item) => item.id);
     const record: InvestigationCase = {
       id: `case-${Date.now()}`,
@@ -29,6 +40,8 @@ export default function Cases() {
     };
     saveCase(record);
     setDraft({ title: '', primarySector: 'prisons', analyst: 'Ministry Analyst', priority: 'P2', notes: '' });
+    setError('');
+    setMessage(`Case ${record.id} created and displayed below.`);
   };
 
   return (
@@ -40,6 +53,8 @@ export default function Cases() {
       </div>
       <section className="rounded-lg border border-line bg-panel p-4">
         <h2 className="font-semibold">Create Case</h2>
+        {message && <p className="mt-3 rounded-lg border border-signal/40 bg-signal/10 px-3 py-2 text-sm text-signal">{message}</p>}
+        {error && <p className="mt-3 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <label className="block text-sm text-slate-300">Case title<input className="mt-2 min-h-11 w-full rounded-lg border border-line bg-panelSoft px-3 py-2 text-sm" value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></label>
           <label className="block text-sm text-slate-300">Primary sector<select className="mt-2 min-h-11 w-full rounded-lg border border-line bg-panelSoft px-3 py-2 text-sm" value={draft.primarySector} onChange={(event) => setDraft({ ...draft, primarySector: event.target.value as SectorId })}>{sectors.filter((item) => !['admin', 'multi-sector'].includes(item.id)).map((item) => <option key={item.id} value={item.id}>{item.shortName}</option>)}</select></label>
@@ -68,7 +83,7 @@ export default function Cases() {
             </div>
             <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap">
               <Link to={`/cases/${item.id}`} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-line bg-panelSoft px-3 py-2 text-sm text-slate-100">View case</Link>
-              <button onClick={() => item.status === 'Closed' ? reopenCase(item.id) : closeCase(item.id)} className="min-h-10 rounded-lg bg-signal px-3 py-2 text-sm font-semibold leading-5 text-graphite">{item.status === 'Closed' ? 'Reopen' : 'Close case'}</button>
+              <button onClick={() => { if (item.status === 'Closed') { reopenCase(item.id); setMessage(`${item.id} reopened.`); } else if (window.confirm('Close this case?')) { closeCase(item.id); setMessage(`${item.id} closed.`); } setError(''); }} className="min-h-10 rounded-lg bg-signal px-3 py-2 text-sm font-semibold leading-5 text-graphite">{item.status === 'Closed' ? 'Reopen' : 'Close case'}</button>
             </div>
           </article>
         ))}

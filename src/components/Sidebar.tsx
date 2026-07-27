@@ -68,12 +68,12 @@ export function Sidebar() {
       <button className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center rounded-lg border border-line bg-panel text-slate-200 shadow-glow lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
         <Menu size={20} />
       </button>
-      <aside className="sticky top-0 hidden h-screen w-80 shrink-0 overflow-y-auto border-r border-line bg-panel/95 p-5 lg:block">
+      <aside className="fixed inset-y-0 start-0 z-40 hidden h-dvh w-80 overflow-y-auto border-e border-line bg-panel/95 p-5 lg:block">
         {nav}
       </aside>
       {open && (
-        <div className="fixed inset-0 z-50 bg-graphite/80 backdrop-blur lg:hidden">
-          <aside className="h-full w-[min(24rem,92vw)] overflow-y-auto border-r border-line bg-panel p-5 shadow-glow">
+        <div className="fixed inset-0 z-50 bg-graphite/80 backdrop-blur lg:hidden" onClick={() => setOpen(false)}>
+          <aside className="h-dvh w-[min(24rem,92vw)] overflow-y-auto border-e border-line bg-panel p-5 shadow-glow [padding-bottom:calc(1.25rem+env(safe-area-inset-bottom))] [padding-top:calc(1.25rem+env(safe-area-inset-top))]" onClick={(event) => event.stopPropagation()}>
             <button className="mb-4 grid h-10 w-10 place-items-center rounded-lg border border-line bg-panelSoft text-slate-200" onClick={() => setOpen(false)} aria-label="Close navigation">
               <X size={18} />
             </button>

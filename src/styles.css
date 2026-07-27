@@ -42,7 +42,13 @@ body {
 #root,
 main {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+@media (min-width: 1024px) {
+  .app-main {
+    padding-inline-start: 20rem;
+  }
 }
 
 p,
@@ -86,6 +92,55 @@ textarea {
 button,
 a[role="button"] {
   line-height: 1.35;
+}
+
+.control-input {
+  min-height: 44px;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #41505e;
+  background: #303c47;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: #f4f7f8;
+  outline: none;
+}
+
+.control-input:focus {
+  border-color: #39d7b4;
+}
+
+.control-button,
+.control-button-primary {
+  min-height: 44px;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.control-button {
+  border: 1px solid #41505e;
+  background: #303c47;
+  color: #f4f7f8;
+}
+
+.control-button-primary {
+  background: #39d7b4;
+  color: #111827;
+  font-weight: 700;
+}
+
+@media (min-width: 1280px) {
+  .investigation-workflow-panel {
+    position: sticky;
+    top: 6rem;
+    max-height: calc(100dvh - 7.5rem);
+    overflow-y: auto;
+    align-self: flex-start;
+    overscroll-behavior: contain;
+  }
 }
 
 table {
