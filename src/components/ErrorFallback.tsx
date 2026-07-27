@@ -42,7 +42,7 @@ export function ErrorFallback({
         )}
         <button onClick={goBack} className="min-h-11 rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100">Previous Page</button>
         <Link to="/" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-signal px-4 py-2 text-sm font-semibold text-graphite">Dashboard</Link>
-        <Link to="/alerts" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100">Findings Queue</Link>
+        <Link to="/findings" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100">Findings Queue</Link>
         {listRoute && listLabel && <Link to={listRoute} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100">{listLabel}</Link>}
       </div>
     </section>

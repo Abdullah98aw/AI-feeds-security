@@ -173,7 +173,7 @@ export default function Investigation() {
           </div>
           <div className="grid gap-2 sm:flex sm:flex-wrap lg:justify-end">
             <button onClick={() => notesSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-signal px-4 py-2 text-sm font-semibold text-graphite"><Plus size={16} /> Add Note</button>
-            <Link to="/alerts" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100 hover:border-signal">Return to Queue</Link>
+            <Link to="/findings" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100 hover:border-signal">Return to Queue</Link>
             <button onClick={() => { storage.event('Export generated', `Finding report generated for ${finding.id}.`, { findingId: finding.id, sector: finding.primarySector }); show('Report generated. Audit event recorded.'); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100 hover:border-signal">Export <Download size={16} /></button>
             <button onClick={() => { navigator.clipboard.writeText(`${finding.id}\n${finding.aiExplanation}`); show('Finding summary copied.'); }} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-panelSoft px-4 py-2 text-sm text-slate-100 hover:border-signal">Copy Summary <Copy size={16} /></button>
           </div>
@@ -545,6 +545,6 @@ function EmptyState({ title, detail }: { title: string; detail: string }) {
 
 function NotFound({ title, detail }: { title: string; detail: string }) {
   return (
-    <ErrorFallback title={title} message={detail} detail="Open the findings queue to choose an available record, or return to the dashboard." listRoute="/alerts" listLabel="Findings Queue" />
+    <ErrorFallback title={title} message={detail} detail="Open the findings queue to choose an available record, or return to the dashboard." listRoute="/findings" listLabel="Findings Queue" />
   );
 }

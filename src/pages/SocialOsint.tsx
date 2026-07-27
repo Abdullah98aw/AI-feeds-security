@@ -43,7 +43,7 @@ export default function SocialOsint() {
                 <Info label={item.platform === 'TikTok' ? 'Speech-to-text preview' : item.platform === 'Instagram' ? 'OCR findings' : 'Detected context'} value={item.findings.join('; ')} />
                 <Info label="Visual findings" value={item.findings[0]} />
               </dl>
-              <Link to="/alerts" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-signal px-4 py-2 text-center text-sm font-semibold leading-5 text-graphite sm:w-auto">Open Investigation</Link>
+              <Link to="/findings" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-signal px-4 py-2 text-center text-sm font-semibold leading-5 text-graphite sm:w-auto">Open Investigation</Link>
             </article>
           );
         })}

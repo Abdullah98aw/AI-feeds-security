@@ -8,7 +8,7 @@ type LabelKey = keyof typeof labels.en;
 
 const links = [
   { to: '/', key: 'dashboard' as LabelKey, icon: LayoutDashboard },
-  { to: '/alerts', key: 'findings' as LabelKey, icon: ClipboardList },
+  { to: '/findings', key: 'findings' as LabelKey, icon: ClipboardList },
   { to: '/vulnerabilities', key: 'vulnerabilities' as LabelKey, icon: ShieldAlert },
   { to: '/dark-web', key: 'darkWeb' as LabelKey, icon: Globe2 },
   { to: '/social-osint', key: 'social' as LabelKey, icon: SearchCheck },

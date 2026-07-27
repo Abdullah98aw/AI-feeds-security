@@ -4,6 +4,8 @@
 
 The platform is a frontend Ministry Threat Intelligence prototype for a central Ministry Admin analyst. It is designed to demonstrate how a Ministry-level security operations team could review simulated threat findings across sectors, route work to analysts, manage cases, inspect vulnerability exposure, review notifications, and maintain an audit trail.
 
+Deployment routing has been hardened for Vercel. The app now includes a root `vercel.json` SPA rewrite to serve `index.html` for direct client-side routes, keeps Vite configured for root-domain deployment with `dist` output, and exposes `/findings` as the canonical findings queue route while preserving `/alerts` as a legacy alias.
+
 The prototype addresses the workflow problem of consolidating many intelligence signals into one operational interface. It demonstrates dashboard monitoring, findings triage, investigation review, sector assignment, case management, notifications, audit history, analytics, search, localization, and responsive layouts.
 
 The intelligence feeds, AI explanations, vulnerability matching, social OSINT analysis, dark web findings, authentication, backend, database, and live integrations are simulated. No real Ministry data, real credentials, real dark web access, real social platform data, or real AI model is used.
@@ -52,7 +54,7 @@ General Directorate of Passports: monitored for simulated passport-service, coun
 
 Frontend framework: React with TypeScript and Vite.
 
-Routing: `createBrowserRouter` in `src/main.tsx` defines routes for the dashboard, investigations, accounts, findings, vulnerabilities, dark web, social OSINT, cases, case detail, unassigned findings, sources, notifications, audit, analytics, settings, and not-found page.
+Routing: `createBrowserRouter` in `src/main.tsx` defines routes for the dashboard, findings queue, legacy alerts alias, investigations, accounts, vulnerabilities, dark web, social OSINT, cases, case detail, unassigned findings, sources, notifications, audit, analytics, settings, and not-found page.
 
 State management: `AlertStatusContext.tsx` provides app-wide state through React context and local `useState`.
 

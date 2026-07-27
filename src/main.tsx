@@ -30,6 +30,7 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard />, errorElement: <RouteErrorElement /> },
       { path: 'investigation/:alertId', element: <Investigation />, errorElement: <RouteErrorElement /> },
       { path: 'accounts/:accountId?', element: <AccountIntelligence />, errorElement: <RouteErrorElement /> },
+      { path: 'findings', element: <AlertManagement />, errorElement: <RouteErrorElement /> },
       { path: 'alerts', element: <AlertManagement />, errorElement: <RouteErrorElement /> },
       { path: 'vulnerabilities', element: <VulnerabilityIntelligence />, errorElement: <RouteErrorElement /> },
       { path: 'dark-web', element: <DarkWebIntelligence />, errorElement: <RouteErrorElement /> },

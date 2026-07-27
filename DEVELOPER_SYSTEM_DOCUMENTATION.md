@@ -68,7 +68,7 @@ Production should replace localStorage with a backend API, database, authenticat
 - `src/components/`: badges, cards, charts, fallback screens, error boundary, live toasts.
 - `src/pages/`: route-level screens.
 - `src/data/`: mock datasets and live simulation event templates.
-- `src/services/`: storage, i18n, safe action helpers.
+- `src/services/`: storage, i18n, safe action helpers, and safe navigation validation.
 - `src/state/`: shared React context and simulation timer.
 - `src/types.ts`: shared TypeScript models.
 - `src/styles.css`: Tailwind imports and global hardening styles.
@@ -80,7 +80,8 @@ Production should replace localStorage with a backend API, database, authenticat
 | Route | Component | Purpose | Dynamic Parameter | Fallback |
 | --- | --- | --- | --- | --- |
 | `/` | Dashboard | Ministry overview | None | Route error element |
-| `/alerts` | AlertManagement | Findings queue | None | Route error element |
+| `/findings` | AlertManagement | Findings queue | None | Route error element |
+| `/alerts` | AlertManagement | Legacy findings alias | None | Route error element |
 | `/investigation/:alertId` | Investigation | Finding detail | `alertId` | Record not found fallback |
 | `/accounts/:accountId?` | AccountIntelligence | Account list/detail | `accountId` | Account not found fallback |
 | `/vulnerabilities` | VulnerabilityIntelligence | Mock vulnerability matching | None | Empty state |
@@ -97,7 +98,50 @@ Production should replace localStorage with a backend API, database, authenticat
 | `*` | NotFound | Invalid URL | Any | Recovery screen |
 
 ## 14. Navigation Model
-Sidebar links cover every route. The mobile drawer closes after navigation. Top bar search links to findings, cases, accounts, assets/vulnerabilities, and sectors. Error screens provide Previous Page, Dashboard, and Findings Queue recovery. Previous Page falls back to Dashboard when history is unavailable.
+Sidebar links cover every canonical route and use `/findings` for the findings queue. `/alerts` remains as a legacy alias so older links do not break. The mobile drawer closes after navigation. Top bar search links to findings, cases, accounts, assets/vulnerabilities, and sectors. Imperative navigation uses `safeNavigate` where practical to reject empty, malformed, unknown, or invalid-record destinations and fall back to Dashboard. Error screens provide Previous Page, Dashboard, and Findings Queue recovery. Previous Page falls back to Dashboard when history is unavailable.
+
+## 14A. Vercel SPA Deployment and Routing
+This project is a Vite single page application using React Router `createBrowserRouter`. BrowserRouter routes such as `/vulnerabilities`, `/findings`, `/cases`, `/notifications`, and `/investigation/:alertId` are client-side routes, not physical files in the deployed output.
+
+The production 404 root cause was missing Vercel SPA rewrite behavior. Without a rewrite, directly opening or refreshing `/vulnerabilities` can make Vercel look for a server file at that path and return its own `404: NOT_FOUND` page before React loads.
+
+The root `vercel.json` fixes this by rewriting all incoming paths to `/index.html`:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+Vercel still serves generated static assets from the deployment output. The rewrite is for route fallback into the SPA entry document so React Router can decide whether the route is valid, show a page, show Record Not Found, or show the React Not Found screen.
+
+Vite deployment settings:
+- Framework Preset: Vite.
+- Install Command: `npm install`, because `package-lock.json` is present.
+- Build Command: `npm run build`.
+- Output Directory: `dist`.
+- Root Directory: the project root containing `package.json`, `vite.config.ts`, and `vercel.json`.
+- Vite `base`: `/`, appropriate for deployment at the Vercel domain root.
+- Vite output directory: `dist`.
+
+Testing direct URLs:
+- Build with `npm run build`.
+- Run a production-equivalent preview with `npm run preview`.
+- Open valid routes directly in a new tab: `/`, `/findings`, `/vulnerabilities`, `/dark-web`, `/social-osint`, `/cases`, `/notifications`, `/audit`, `/analytics`, `/settings`, `/investigation/{valid-id}`, and `/cases/{valid-id}`.
+- Refresh each route and confirm the app shell remains visible.
+- Open invalid routes such as `/unknown-page`, `/undefined`, and `/null` and confirm the React Not Found screen appears.
+- Open invalid records such as `/investigation/invalid-id` and `/cases/invalid-id` and confirm Record Not Found appears.
+
+Troubleshooting `404: NOT_FOUND`:
+- If Vercel's own 404 appears, the request did not reach React. Check that `vercel.json` is in the deployed root directory, the Vercel Root Directory points at this project, and the Output Directory is `dist`.
+- If the app shell loads and shows Page Not Found, Vercel routing is working and React Router rejected the client route.
+- If assets fail, confirm `vite.config.ts` uses `base: '/'` for root-domain deployment and that Vercel is serving the Vite `dist` output.
+- If an old preview URL fails, verify it is still an active deployment. Commit-specific or branch preview URLs can be deleted, expired, or superseded. Promote the intended deployment to Production for a stable production domain.
 
 ## 15. Error Handling
 `AppErrorBoundary` catches render/lifecycle failures. `RouteErrorElement` catches React Router route errors. `ErrorFallback` provides user-friendly recovery buttons and avoids raw stack traces. Development mode logs technical errors to the console. Dynamic finding/case/account IDs are checked before rendering.

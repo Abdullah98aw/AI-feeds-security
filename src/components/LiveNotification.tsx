@@ -1,5 +1,6 @@
 import { Bell, Volume2, VolumeX, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { safeNavigate } from '../services/navigation';
 import type { Alert } from '../types';
 
 const arabicMessages = [
@@ -13,8 +14,9 @@ const arabicMessages = [
 export function LiveNotification({ alert, muted, onToggleMute, onDismiss }: { alert?: Alert; muted: boolean; onToggleMute: () => void; onDismiss: () => void }) {
   const navigate = useNavigate();
   if (!alert) return null;
+  const openInvestigation = () => safeNavigate(`/investigation/${alert.id}`, navigate, { validFindingIds: [alert.id] });
   return (
-    <div className="fixed right-4 top-20 z-40 max-h-[calc(100vh-6rem)] w-[min(26rem,calc(100vw-2rem))] overflow-y-auto animate-feed-in cursor-pointer rounded-lg border border-danger/40 bg-panel/95 p-4 shadow-glow backdrop-blur transition hover:-translate-y-0.5 hover:border-danger hover:bg-panelSoft" onClick={() => navigate(`/investigation/${alert.id}`)} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate(`/investigation/${alert.id}`); }} title="Open alert investigation">
+    <div className="fixed right-4 top-20 z-40 max-h-[calc(100vh-6rem)] w-[min(26rem,calc(100vw-2rem))] overflow-y-auto animate-feed-in cursor-pointer rounded-lg border border-danger/40 bg-panel/95 p-4 shadow-glow backdrop-blur transition hover:-translate-y-0.5 hover:border-danger hover:bg-panelSoft" onClick={openInvestigation} role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') openInvestigation(); }} title="Open alert investigation">
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-danger/15 text-danger"><Bell size={20} /></div>
         <div className="min-w-0 flex-1">

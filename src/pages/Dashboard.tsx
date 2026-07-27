@@ -123,7 +123,7 @@ export default function Dashboard() {
               <h2 className="text-lg font-semibold">Priority Findings</h2>
               <p className="mt-1 text-sm text-slate-400">Most relevant work for the selected sector and KPI filter.</p>
             </div>
-            <Link to="/alerts" className="rounded-lg border border-line bg-panel px-3 py-2 text-sm text-slate-100 hover:border-signal">Open full queue</Link>
+            <Link to="/findings" className="rounded-lg border border-line bg-panel px-3 py-2 text-sm text-slate-100 hover:border-signal">Open full queue</Link>
           </div>
           {filtered.map((finding) => <PostCard key={finding.id} post={{ id: finding.postId, accountId: finding.primarySector, timestamp: finding.collectionTime, text: finding.originalFinding, language: 'English', category: finding.category, severity: finding.severity, confidence: finding.confidence, status: finding.status, sourceType: finding.source }} alert={finding} />)}
           {filtered.length === 0 && <EmptyState title="No Findings" detail="No findings match this sector and KPI filter." />}

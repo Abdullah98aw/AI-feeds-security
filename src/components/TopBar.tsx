@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { mockAssets, mockVulnerabilities, sectors } from '../data/ministryData';
 import { labels } from '../services/i18n';
+import { safeNavigate } from '../services/navigation';
 import { usePrototype } from '../state/AlertStatusContext';
 
 export function TopBar() {
@@ -40,7 +41,7 @@ export function TopBar() {
           </label>
           <SearchResults results={results(query)} />
         </div>
-        <button onClick={() => navigate('/notifications')} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line bg-panel text-slate-300 hover:text-white" title={t.notifications}>
+        <button onClick={() => safeNavigate('/notifications', navigate)} className="relative grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line bg-panel text-slate-300 hover:text-white" title={t.notifications}>
           <Bell size={18} />
           {unread > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-danger px-1.5 py-0.5 text-[10px] font-bold text-white">{unread}</span>}
         </button>
