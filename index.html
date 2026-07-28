@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KAUST Research</title>
+    <script>
+      (() => {
+        const key = 'moi-threat-intel-v2-theme';
+        const stored = localStorage.getItem(key);
+        const theme = stored === 'light' || stored === 'dark'
+          ? stored
+          : window.matchMedia?.('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

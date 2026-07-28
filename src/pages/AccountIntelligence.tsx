@@ -96,10 +96,10 @@ export default function AccountIntelligence() {
           <div className="rounded-lg border border-line bg-panel p-5">
             <h2 className="text-lg font-semibold">Simulated relationship graph</h2>
             <svg viewBox="0 0 320 260" className="mt-4 h-72 w-full rounded-lg bg-panelSoft">
-              <line x1="160" y1="130" x2="80" y2="62" stroke="#5b6975" strokeWidth="2" />
-              <line x1="160" y1="130" x2="250" y2="78" stroke="#5b6975" strokeWidth="2" />
-              <line x1="160" y1="130" x2="248" y2="198" stroke="#5b6975" strokeWidth="2" />
-              <circle cx="160" cy="130" r="42" fill="#39d7b4" opacity="0.18" />
+              <line x1="160" y1="130" x2="80" y2="62" stroke="var(--color-border)" strokeWidth="2" />
+              <line x1="160" y1="130" x2="250" y2="78" stroke="var(--color-border)" strokeWidth="2" />
+              <line x1="160" y1="130" x2="248" y2="198" stroke="var(--color-border)" strokeWidth="2" />
+              <circle cx="160" cy="130" r="42" fill="var(--color-primary)" opacity="0.18" />
               <text x="160" y="126" textAnchor="middle" className="fill-slate-100 text-[13px] font-bold">{account.avatarInitials}</text>
               <text x="160" y="145" textAnchor="middle" className="fill-slate-300 text-[11px]">selected</text>
               {related.map((item, index) => {
@@ -111,7 +111,7 @@ export default function AccountIntelligence() {
                 const point = points[index] ?? points[0];
                 return (
                   <g key={item!.id}>
-                    <circle cx={point.x} cy={point.y} r="31" fill="#303c47" stroke="#39d7b4" strokeOpacity="0.45" />
+                    <circle cx={point.x} cy={point.y} r="31" fill="var(--color-surface)" stroke="var(--color-primary)" strokeOpacity="0.45" />
                     <text x={point.x} y={point.y + 4} textAnchor="middle" className="fill-slate-100 text-[12px] font-bold">{item!.avatarInitials}</text>
                   </g>
                 );

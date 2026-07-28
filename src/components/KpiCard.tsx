@@ -28,17 +28,17 @@ export function KpiCard({ label, value, detail, icon: Icon }: { label: string; v
   }, [numeric, value]);
 
   return (
-    <section className="h-full rounded-lg border border-line bg-panel/90 p-4 shadow-glow transition duration-300 hover:-translate-y-0.5 hover:border-signal/40">
+    <section className="h-full rounded-2xl border border-line bg-panel p-5 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-signal">
       <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm leading-5 text-slate-400">{label}</p>
-          <p className="mt-2 text-2xl font-semibold leading-tight sm:text-3xl">{display}{Number.isFinite(numeric) ? suffix : ''}</p>
+          <p className="text-sm font-semibold leading-5 text-slate-300">{label}</p>
+          <p className="mt-2 text-3xl font-semibold leading-tight text-slate-100">{display}{Number.isFinite(numeric) ? suffix : ''}</p>
         </div>
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-signal/10 text-signal">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--color-low-background)] text-[var(--color-low-text)]">
           <Icon size={20} />
         </div>
       </div>
-      <p className="mt-3 text-sm leading-5 text-slate-500">{detail}</p>
+      <p className="mt-4 text-sm leading-5 text-slate-400">{detail}</p>
     </section>
   );
 }

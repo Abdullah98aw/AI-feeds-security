@@ -33,8 +33,8 @@ export function Sidebar() {
           <ShieldAlert size={24} />
         </div>
         <div>
-          <p className="text-lg font-semibold leading-6 tracking-wide">MOI Threat Intel</p>
-          <p className="text-[0.78rem] uppercase leading-5 text-slate-400">AI SOC Prototype</p>
+          <p className="sidebar-brand-title text-lg font-semibold leading-6 tracking-wide">MOI Threat Intel</p>
+          <p className="sidebar-brand-subtitle text-[0.78rem] uppercase leading-5">AI SOC Prototype</p>
         </div>
       </div>
       <nav className="space-y-2">
@@ -46,8 +46,8 @@ export function Sidebar() {
             onClick={() => setOpen(false)}
             className={({ isActive }) =>
               [
-                'flex min-w-0 items-center gap-3 rounded-lg px-3 py-3 text-sm leading-5 transition',
-                isActive ? 'bg-signal/15 text-signal' : 'text-slate-300 hover:bg-panelSoft hover:text-white'
+                'flex min-w-0 items-center gap-3 rounded-xl px-3 py-3 text-sm leading-5 transition',
+                isActive ? 'bg-[var(--color-sidebar-active-background)] text-[var(--color-sidebar-active-text)]' : 'text-[var(--color-sidebar-text)] hover:bg-white/10 hover:text-white'
               ].join(' ')
             }
           >
@@ -65,16 +65,16 @@ export function Sidebar() {
 
   return (
     <>
-      <button className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center rounded-lg border border-line bg-panel text-slate-200 shadow-glow lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+      <button className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center rounded-xl border border-line bg-panel text-signal shadow-glow lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
         <Menu size={20} />
       </button>
-      <aside className="fixed inset-y-0 start-0 z-40 hidden h-dvh w-80 overflow-y-auto border-e border-line bg-panel/95 p-5 lg:block">
+      <aside className="sidebar-shell fixed inset-y-0 start-0 z-40 hidden h-dvh w-80 overflow-y-auto border-e border-[color:var(--color-border)] bg-[var(--color-sidebar-background)] p-5 lg:block">
         {nav}
       </aside>
       {open && (
-        <div className="fixed inset-0 z-50 bg-graphite/80 backdrop-blur lg:hidden" onClick={() => setOpen(false)}>
-          <aside className="h-dvh w-[min(24rem,92vw)] overflow-y-auto border-e border-line bg-panel p-5 shadow-glow [padding-bottom:calc(1.25rem+env(safe-area-inset-bottom))] [padding-top:calc(1.25rem+env(safe-area-inset-top))]" onClick={(event) => event.stopPropagation()}>
-            <button className="mb-4 grid h-10 w-10 place-items-center rounded-lg border border-line bg-panelSoft text-slate-200" onClick={() => setOpen(false)} aria-label="Close navigation">
+        <div className="fixed inset-0 z-50 bg-[var(--color-overlay)] backdrop-blur lg:hidden" onClick={() => setOpen(false)}>
+          <aside className="mobile-drawer h-dvh w-[min(24rem,92vw)] overflow-y-auto border-e border-line bg-panel p-5 shadow-glow [padding-bottom:calc(1.25rem+env(safe-area-inset-bottom))] [padding-top:calc(1.25rem+env(safe-area-inset-top))]" onClick={(event) => event.stopPropagation()}>
+            <button className="mb-4 grid h-11 w-11 place-items-center rounded-xl border border-line bg-panelSoft text-signal" onClick={() => setOpen(false)} aria-label="Close navigation">
               <X size={18} />
             </button>
             {nav}

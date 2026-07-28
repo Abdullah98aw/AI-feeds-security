@@ -25,10 +25,10 @@ function AppShell() {
         <Sidebar />
         <main className="app-main min-w-0">
           <TopBar />
-          <div className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-            <div className="mb-5 flex flex-col gap-2 rounded-lg border border-signal/25 bg-panelSoft px-4 py-3 text-sm text-slate-200 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="mx-auto w-full max-w-[88rem] px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mb-6 flex flex-col gap-2 rounded-2xl border border-line bg-panel px-4 py-3 text-sm text-slate-300 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <span>Ministry of Interior Threat Intelligence prototype - simulated intelligence findings only - no live dark web access and no automatic incident confirmation.</span>
-              <span className="w-fit rounded-full bg-signal/15 px-3 py-1 text-xs font-semibold text-signal">{t.simulated}</span>
+              <span className="w-fit rounded-full bg-[var(--color-low-background)] px-3 py-1 text-xs font-semibold text-[var(--color-low-text)]">{t.simulated}</span>
             </div>
             <Outlet />
           </div>

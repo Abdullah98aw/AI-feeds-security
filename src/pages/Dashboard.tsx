@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock, FileWarning, ShieldAlert, UserX } from 'lucide-react';
+import { AlertTriangle, Clock, ShieldAlert, UserX } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BarChartCard } from '../components/ChartCard';
@@ -15,10 +15,8 @@ import type { Alert, AlertStatus, SectorId } from '../types';
 const kpis: Array<{ label: string; status?: AlertStatus; icon: LucideIcon; filter: string }> = [
   { label: 'Active Findings', icon: ShieldAlert, filter: 'active' },
   { label: 'Critical Findings', icon: AlertTriangle, filter: 'critical' },
-  { label: 'Under Investigation', status: 'Investigating', icon: Clock, filter: 'Investigating' },
-  { label: 'Closed This Week', status: 'Closed', icon: CheckCircle2, filter: 'Closed' },
-  { label: 'Overdue Findings', status: 'Overdue', icon: FileWarning, filter: 'Overdue' },
-  { label: 'Unassigned Findings', icon: UserX, filter: 'unassigned' }
+  { label: 'Unassigned Findings', icon: UserX, filter: 'unassigned' },
+  { label: 'Under Investigation', status: 'Investigating', icon: Clock, filter: 'Investigating' }
 ];
 
 export default function Dashboard() {
@@ -48,19 +46,22 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-end">
+    <div className="space-y-8">
+      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <p className="text-sm uppercase tracking-[0.18em] text-signal">Central Ministry Experience</p>
-          <h1 className="mt-2 text-3xl font-semibold">{t.overviewTitle}</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{t.overviewSubtitle}</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-signal">Central Ministry Experience</p>
+          <h1 className="mt-2 text-[1.7rem] font-semibold leading-tight text-slate-100 sm:text-3xl lg:text-[2rem]">{t.overviewTitle}</h1>
+          <p className="mt-3 max-w-3xl text-base leading-7 text-slate-300">{t.overviewSubtitle}</p>
         </div>
-        <button onClick={() => setParams({ filter: listFilter })} className="rounded-lg border border-line bg-panel px-4 py-2 text-sm text-slate-100 transition hover:border-signal">
-          View All Sectors
-        </button>
+        <div className="grid gap-2 sm:flex sm:items-center">
+          <Link to="/findings" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-signal px-4 py-2 text-sm font-semibold text-graphite transition hover:bg-[var(--color-primary-hover)]">Open Findings Queue</Link>
+          <button onClick={() => setParams({ filter: listFilter })} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-panel px-4 py-2 text-sm font-semibold text-signal transition hover:border-signal">
+            View All Sectors
+          </button>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((kpi) => {
           const count = kpi.filter === 'active'
             ? visible.filter((item) => !['Closed', 'Resolved'].includes(item.status)).length
@@ -77,63 +78,73 @@ export default function Dashboard() {
         })}
       </div>
 
-      <section className="rounded-lg border border-line bg-panel p-4">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <section className="space-y-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="font-semibold">Threat Status Overview</h2>
-            <p className="mt-1 text-sm text-slate-400">A quick operational view of new, assigned, investigating, resolved, closed, and overdue work.</p>
+            <h2 className="text-xl font-semibold text-slate-100">Findings Requiring Attention</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-300">The most relevant work for the selected sector and KPI filter.</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {statusCounts.map((item) => <StatusBadge key={item.label} status={item.label as AlertStatus} />)}
-          </div>
+          <Link to="/findings" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-panel px-3 py-2 text-sm font-semibold text-signal hover:border-signal">Open full queue</Link>
         </div>
-        <div className="flex h-4 overflow-hidden rounded-full bg-panelSoft">
-          {statusCounts.map((item, index) => (
-            <div key={item.label} title={`${item.label}: ${item.value}`} className={['bg-sky-400', 'bg-danger', 'bg-critical', 'bg-amber', 'bg-emerald-300', 'bg-emerald-500', 'bg-danger'][index]} style={{ width: `${Math.max(4, (item.value / Math.max(visible.length, 1)) * 100)}%` }} />
+        <div className="grid gap-4 lg:grid-cols-2">
+          {filtered.slice(0, 4).map((finding) => <PostCard key={finding.id} post={{ id: finding.postId, accountId: finding.primarySector, timestamp: finding.collectionTime, text: finding.originalFinding, language: 'English', category: finding.category, severity: finding.severity, confidence: finding.confidence, status: finding.status, sourceType: finding.source }} alert={finding} />)}
+        </div>
+        {filtered.length === 0 && <EmptyState title="No Findings" detail="No findings match this sector and KPI filter." />}
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-100">Sector Overview</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-300">Operational ownership and workload by Ministry sector.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+          {sectorCards.map((item) => (
+            <button key={item.sector.id} onClick={() => setParams({ sector: item.sector.id, filter: listFilter })} className="h-auto min-w-0 rounded-2xl border border-line bg-panel p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-signal focus:outline-none focus:ring-2 focus:ring-signal/30">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 flex-1 basis-56">
+                  <h3 className="whitespace-normal break-words text-lg font-semibold leading-6 text-slate-100">{item.sector.shortName}</h3>
+                  <p className="mt-1 whitespace-normal break-words text-sm leading-5 text-slate-400">Last activity: {item.last}</p>
+                </div>
+                <span className="inline-flex w-auto shrink-0 whitespace-nowrap rounded-full bg-[var(--color-critical-background)] px-3 py-1.5 text-sm font-semibold leading-5 text-[var(--color-critical-text)]">{item.critical} Critical</span>
+              </div>
+              <dl className="mt-5 grid grid-cols-2 gap-3">
+                <Metric label="Open" value={item.open} />
+                <Metric label="Investigating" value={item.investigating} />
+                <Metric label="Overdue" value={item.overdue} />
+                <Metric label="Avg. Response" value={item.avg} />
+              </dl>
+            </button>
           ))}
         </div>
       </section>
 
-      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <section className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-            {sectorCards.map((item) => (
-              <button key={item.sector.id} onClick={() => setParams({ sector: item.sector.id, filter: listFilter })} className="h-auto min-w-0 rounded-lg border border-line bg-panel p-5 text-left transition hover:-translate-y-0.5 hover:border-signal/40 focus:outline-none focus:ring-2 focus:ring-signal/50">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1 basis-56">
-                    <h2 className="whitespace-normal break-words text-lg font-semibold leading-6 text-slate-100">{item.sector.shortName}</h2>
-                    <p className="mt-1 whitespace-normal break-words text-sm leading-5 text-slate-500">Last activity: {item.last}</p>
-                  </div>
-                  <span className="inline-flex w-auto shrink-0 whitespace-nowrap rounded-full bg-signal/10 px-3 py-1.5 text-sm font-semibold leading-5 text-signal">{item.critical} Critical</span>
-                </div>
-                <dl className="mt-5 grid grid-cols-1 gap-3 min-[640px]:grid-cols-2 min-[900px]:grid-cols-3">
-                  <Metric label="Open" value={item.open} />
-                  <Metric label="Investigating" value={item.investigating} />
-                  <Metric label="Closed" value={item.closed} />
-                  <Metric label="Overdue" value={item.overdue} />
-                  <Metric label="Critical" value={item.critical} />
-                  <Metric label="Avg. Response" value={item.avg} />
-                </dl>
-              </button>
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-100">Charts and Analytics</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-300">Supporting trends are placed lower so urgent findings stay prominent.</p>
+        </div>
+        <section className="rounded-2xl border border-line bg-panel p-5 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-100">Threat Status Overview</h3>
+              <p className="mt-1 text-sm text-slate-300">New, assigned, investigating, resolved, closed, and overdue work.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {statusCounts.map((item) => <StatusBadge key={item.label} status={item.label as AlertStatus} />)}
+            </div>
+          </div>
+          <div className="flex h-4 overflow-hidden rounded-full bg-panelSoft">
+            {statusCounts.map((item, index) => (
+              <div key={item.label} title={`${item.label}: ${item.value}`} className={['bg-[var(--color-investigating-text)]', 'bg-[var(--color-medium-text)]', 'bg-[var(--color-success-text)]', 'bg-[var(--color-investigating-text)]', 'bg-[var(--color-success-text)]', 'bg-signal', 'bg-[var(--color-critical-text)]'][index]} style={{ width: `${Math.max(4, (item.value / Math.max(visible.length, 1)) * 100)}%` }} />
             ))}
           </div>
-
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold">Priority Findings</h2>
-              <p className="mt-1 text-sm text-slate-400">Most relevant work for the selected sector and KPI filter.</p>
-            </div>
-            <Link to="/findings" className="rounded-lg border border-line bg-panel px-3 py-2 text-sm text-slate-100 hover:border-signal">Open full queue</Link>
-          </div>
-          {filtered.map((finding) => <PostCard key={finding.id} post={{ id: finding.postId, accountId: finding.primarySector, timestamp: finding.collectionTime, text: finding.originalFinding, language: 'English', category: finding.category, severity: finding.severity, confidence: finding.confidence, status: finding.status, sourceType: finding.source }} alert={finding} />)}
-          {filtered.length === 0 && <EmptyState title="No Findings" detail="No findings match this sector and KPI filter." />}
         </section>
 
-        <aside className="space-y-4">
+        <div className="grid gap-4 xl:grid-cols-2">
           <BarChartCard title="Findings by Source" data={Array.from(new Set(visible.map((finding) => finding.source))).map((source) => ({ label: source, value: visible.filter((finding) => finding.source === source).length }))} />
           <HeatMap data={sectorCards.map((item) => ({ region: item.sector.shortName, value: item.critical + item.overdue + item.open }))} />
-        </aside>
-      </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -147,7 +158,7 @@ function applyFilter(findings: Alert[], filter: string) {
 
 function Metric({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex min-h-20 min-w-0 flex-col items-center justify-center rounded-lg bg-panelSoft px-3 py-3 text-center">
+    <div className="flex min-h-20 min-w-0 flex-col items-center justify-center rounded-xl bg-panelSoft px-3 py-3 text-center">
       <dt className="whitespace-normal break-words text-sm font-medium leading-5 text-slate-400">{label}</dt>
       <dd className="mt-1 text-xl font-semibold leading-6 text-slate-100">{value}</dd>
     </div>
@@ -156,7 +167,7 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 
 function EmptyState({ title, detail }: { title: string; detail: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-line bg-panel p-8 text-center">
+    <div className="rounded-2xl border border-dashed border-line bg-panel p-8 text-center">
       <p className="font-semibold text-slate-100">{title}</p>
       <p className="mt-2 text-sm text-slate-300">{detail}</p>
     </div>

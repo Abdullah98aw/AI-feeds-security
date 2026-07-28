@@ -1,11 +1,11 @@
 import type { Severity } from '../types';
 
 const colors: Record<Severity, string> = {
-  Informational: 'border-slate-400/30 bg-slate-400/10 text-slate-300',
-  Low: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
-  Medium: 'border-amber/30 bg-amber/10 text-amber',
-  High: 'border-danger/30 bg-danger/10 text-danger',
-  Critical: 'border-critical/40 bg-critical/15 text-fuchsia-200'
+  Informational: 'border-line bg-panelSoft text-slate-300',
+  Low: 'border-[color:var(--color-low-background)] bg-[var(--color-low-background)] text-[var(--color-low-text)]',
+  Medium: 'border-[color:var(--color-medium-background)] bg-[var(--color-medium-background)] text-[var(--color-medium-text)]',
+  High: 'border-[color:var(--color-high-background)] bg-[var(--color-high-background)] text-[var(--color-high-text)]',
+  Critical: 'border-[color:var(--color-critical-background)] bg-[var(--color-critical-background)] text-[var(--color-critical-text)]'
 };
 
 export function SeverityBadge({ severity }: { severity: Severity }) {

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import { sectors } from '../data/ministryData';
+import { useTheme } from '../services/theme';
 import { usePrototype } from '../state/AlertStatusContext';
 import type { PrototypeSettings, SectorId, Severity } from '../types';
 
 export default function Settings() {
   const { settings, updateSettings, resetDemoData, simulation, simulationNow, startSimulation, pauseSimulation, resumeSimulation, stopSimulation, restartSimulation, clearSimulatedNotifications, setLiveToastsMuted } = usePrototype();
+  const { theme, setTheme } = useTheme();
   const [draft, setDraft] = useState<PrototypeSettings>(settings);
   const [message, setMessage] = useState('');
   const remainingMs = simulation.status === 'Running' && simulation.startedAt
@@ -22,6 +24,7 @@ export default function Settings() {
       {message && <p className="rounded-lg border border-signal/40 bg-signal/10 px-3 py-2 text-sm text-signal">{message}</p>}
       <section className="grid gap-4 lg:grid-cols-2">
         <Panel title="Local settings">
+          <Field label="Visual theme"><select value={theme} onChange={(event) => setTheme(event.target.value as 'light' | 'dark')}><option value="light">Light Mode</option><option value="dark">Dark Mode</option></select></Field>
           <Field label="Language"><select value={draft.language} onChange={(event) => setDraft({ ...draft, language: event.target.value as PrototypeSettings['language'] })}><option value="en">English</option><option value="ar">Arabic</option></select></Field>
           <Field label="Notification duration"><input type="number" value={draft.notificationDuration} onChange={(event) => setDraft({ ...draft, notificationDuration: Number(event.target.value) })} /></Field>
           <Field label="Simulation speed"><select value={draft.simulationSpeed} onChange={(event) => setDraft({ ...draft, simulationSpeed: event.target.value as PrototypeSettings['simulationSpeed'] })}><option>Slow</option><option>Normal</option><option>Fast</option></select></Field>
